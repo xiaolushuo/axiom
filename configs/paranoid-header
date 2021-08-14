@@ -1,0 +1,26 @@
+#!/bin/bash
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+WHITE='\033[0;0m'
+GREEN='\033[0;32m'  
+
+ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+echo CuKWkeKWiOKWiOKWiOKWiOKWiOKVl+KWkeKWiOKWiOKVl+KWkeKWkeKWiOKWiOKVl+KWiOKWiOKVl+KWkeKWiOKWiOKWiOKWiOKWiOKVl+KWkeKWiOKWiOKWiOKVl+KWkeKWkeKWkeKWiOKWiOKWiOKVlwrilojilojilZTilZDilZDilojilojilZfilZrilojilojilZfilojilojilZTilZ3ilojilojilZHilojilojilZTilZDilZDilojilojilZfilojilojilojilojilZfilpHilojilojilojilojilZEK4paI4paI4paI4paI4paI4paI4paI4pWR4paR4pWa4paI4paI4paI4pWU4pWd4paR4paI4paI4pWR4paI4paI4pWR4paR4paR4paI4paI4pWR4paI4paI4pWU4paI4paI4paI4paI4pWU4paI4paI4pWRCuKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVkeKWkeKWiOKWiOKVlOKWiOKWiOKVl+KWkeKWiOKWiOKVkeKWiOKWiOKVkeKWkeKWkeKWiOKWiOKVkeKWiOKWiOKVkeKVmuKWiOKWiOKVlOKVneKWiOKWiOKVkQrilojilojilZHilpHilpHilojilojilZHilojilojilZTilZ3ilZrilojilojilZfilojilojilZHilZrilojilojilojilojilojilZTilZ3ilojilojilZHilpHilZrilZDilZ3ilpHilojilojilZEK4pWa4pWQ4pWd4paR4paR4pWa4pWQ4pWd4pWa4pWQ4pWd4paR4paR4pWa4pWQ4pWd4pWa4pWQ4pWd4paR4pWa4pWQ4pWQ4pWQ4pWQ4pWd4paR4pWa4pWQ4pWd4paR4paR4paR4paR4paR4pWa4pWQ4pWdClRoZSBEeW5hbWljIEluZnJhc3RydWN0dXJlIEZyYW1ld29yayBmb3IgRXZlcnlib2R5ISBwcnkwY2MgJiAweHRhdmlhbgoK | base64 -decho -e ""
+echo -e "${BLUE}Greynoise ${WHITE}lookup for Public IP: ${BLUE}$ip${WHITE} - Instance: ${BLUE}$(hostname)${WHITE}"
+echo -e ""
+content=$(curl -s "https://api.greynoise.io/v3/community/$ip")
+echo $content | jq 
+
+echo -e ""
+echo -e "${BLUE}Recent SSH connections${GREEN}"
+last | head -n -2 | grep -v reboot  |  awk '!seen[$3]++'
+
+echo -e ""
+echo -e "${BLUE}ufw rules${NC}"
+sudo ufw status | grep "\S" --color=never | grep -v "v6" | tr -s ' ' | sed -e 's/ /\t/g'
+echo -e ""
+echo -e "${RED}Greynoise Lookup of Connected IPs${NC}"
+content=$(for i in $(netstat -tn 2>/dev/null | tail -n +3 | awk '{print $5}' | cut -d: -f1 | sort -u | sort -r | head); do curl -s https://api.greynoise.io/v3/community/$i; done)
+echo $content | jq

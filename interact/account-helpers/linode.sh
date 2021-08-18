@@ -55,18 +55,6 @@ if [[ "$acc" == "n" ]]; then
     fi
 fi
 
-function login(){
-
-echo -e "${Green}Installing linode-cli\n ${Color_Off}"
-sudo pip3 install linode-cli --upgrade
-echo 'Validating Linode API Key'
-validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
-curl -s  -H "Authorization: Bearer $validatetoken" \
-    https://api.linode.com/v4/account | jq || setuplinode
-
-
-}
-
 function setuplinode(){
 echo -e "${BGreen}Sign up for an account using this link for \$20 free credit: https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90\nObtain a personal access token from: https://cloud.linode.com/profile/tokens${Color_Off}"
 echo -e "${Yellow}Warning: You will need to ask Linode support to increase your max image size to 18GB for packer!${Color_off}"
@@ -150,6 +138,21 @@ if [[ "$acc" == "y" ]]; then
   echo -e "${Green}Opened a ticket with Linode support! Please wait patiently for a few hours and when you get an increase run 'axiom-build'!${Color_Off}"
 	echo "View open tickets at: https://cloud.linode.com/support/tickets"
 fi
+}
+
+function login(){
+
+echo -e "${Green}Installing linode-cli\n ${Color_Off}"
+sudo pip3 install linode-cli --upgrade
+echo 'Validating Linode API Key'
+validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
+loggedin=$(curl -s -H "Authorization: Bearer $validatetoken" https://api.linode.com/v4/account | grep Invalid  | wc -l)
+if [ "$loggedin" -eq "0" ] || [ "$1" == "build" ]; then
+exit
+else
+setuplinode
+fi
+
 }
 
 login
